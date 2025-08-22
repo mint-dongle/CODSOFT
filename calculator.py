@@ -54,7 +54,7 @@ buttons = [
     ("1", 4, 0), ("2", 4, 1), ("3", 4, 2), ("+", 4, 3),
     ("0", 5, 0, 2), (".", 5, 2), ("=", 5, 3)
 ]
-
+# add colours
 #style for theme
 style = ttk.Style()
 style.theme_use('default')
