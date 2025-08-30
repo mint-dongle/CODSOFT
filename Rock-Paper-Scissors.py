@@ -1,88 +1,91 @@
+import tkinter as tk
 import random
-import os
 
-# ANSI color codes for colourful output
-class Colors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
+choices = ["rock", "paper", "scissors"]
+user_score = 0
+comp_score = 0
 
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def print_title():
-    print(f"{Colors.HEADER}{Colors.BOLD}=== Rock Paper Scissors Game ==={Colors.ENDC}")
-
-def get_user_choice():
-    choices = ['rock', 'paper', 'scissors']
-    print(f"{Colors.OKCYAN}Choose one: {Colors.BOLD}rock{Colors.ENDC}, {Colors.BOLD}paper{Colors.ENDC}, or {Colors.BOLD}scissors{Colors.ENDC}")
-    while True:
-        user_input = input(f"{Colors.OKBLUE}Your choice: {Colors.ENDC}").strip().lower()
-        if user_input in choices:
-            return user_input
-        print(f"{Colors.WARNING}Invalid choice! Please choose rock, paper, or scissors.{Colors.ENDC}")
-
-def get_computer_choice():
-    return random.choice(['rock', 'paper', 'scissors'])
-
-def decide_winner(user, computer):
-    if user == computer:
-        return 'tie'
-    elif (user == 'rock' and computer == 'scissors') or \
-         (user == 'scissors' and computer == 'paper') or \
-         (user == 'paper' and computer == 'rock'):
-        return 'win'
+def play(user_choice):
+    global user_score, comp_score
+    comp_choice = random.choice(choices)
+    if user_choice == comp_choice:
+        result = "It's a tie!"
+        color = "#f7b731"
+    elif (user_choice == "rock" and comp_choice == "scissors") or \
+         (user_choice == "scissors" and comp_choice == "paper") or \
+         (user_choice == "paper" and comp_choice == "rock"):
+        result = "Congrats! You win!"
+        color = "#20bf6b"
+        user_score += 1
     else:
-        return 'lose'
+        result = "Lol, you lose!"
+        color = "#eb3b5a"
+        comp_score += 1
 
-def print_result(user, computer, result):
-    print(f"\n{Colors.BOLD}You chose:{Colors.ENDC} {Colors.OKGREEN}{user.capitalize()}{Colors.ENDC}")
-    print(f"{Colors.BOLD}Computer chose:{Colors.ENDC} {Colors.FAIL}{computer.capitalize()}{Colors.ENDC}")
-    if result == 'win':
-        print(f"{Colors.OKGREEN}{Colors.BOLD}You win! 🎉{Colors.ENDC}")
-    elif result == 'lose':
-        print(f"{Colors.FAIL}{Colors.BOLD}You lose! 😢{Colors.ENDC}")
-    else:
-        print(f"{Colors.WARNING}{Colors.BOLD}It's a tie! 🤝{Colors.ENDC}")
+    user_label.config(text=f"Your choice: {user_choice.capitalize()}")
+    computer_label.config(text=f"Computer's choice: {comp_choice.capitalize()}")
+    result_label.config(text=result, bg=color)
+    score_label.config(text=f"Score - You: {user_score} | Computer: {comp_score}")
+    play_again_btn.config(state=tk.NORMAL)
 
 def play_again():
-    answer = input(f"\n{Colors.OKCYAN}Play again? (y/n): {Colors.ENDC}").strip().lower()
-    return answer == 'y'
-
-def main():
+    global user_score, comp_score
     user_score = 0
-    computer_score = 0
-    round_num = 1
+    comp_score = 0
+    user_label.config(text="Your choice: ")
+    computer_label.config(text="Computer's choice: ")
+    result_label.config(text="", bg="#f5f6fa")
+    score_label.config(text=f"Score - You: {user_score} | Computer: {comp_score}")
+    play_again_btn.config(state=tk.DISABLED)
 
-    clear_screen()
-    print_title()
-    print(f"{Colors.OKCYAN}Welcome! Let's play Rock-Paper-Scissors.{Colors.ENDC}")
+root = tk.Tk()
+root.title("Rock-Paper-Scissors")
+root.configure(bg="#f5f6fa")
+root.geometry("500x400")  # window size to 500x400 pixels
 
-    while True:
-        print(f"\n{Colors.BOLD}--- Round {round_num} ---{Colors.ENDC}")
-        user_choice = get_user_choice()
-        computer_choice = get_computer_choice()
-        result = decide_winner(user_choice, computer_choice)
-        print_result(user_choice, computer_choice, result)
+title_label = tk.Label(root, text="Welcome to Rock-Paper-Scissors!", font=("Arial", 16, "bold"), bg="#f5f6fa", fg="#2d3436")
+title_label.pack(pady=10)
 
-        if result == 'win':
-            user_score += 1
-        elif result == 'lose':
-            computer_score += 1
+instruction_label = tk.Label(root, text="Click a button below to make your choice.", font=("Arial", 13), bg="#f5f6fa", fg="#636e72")
+instruction_label.pack(pady=5)
 
-        print(f"\n{Colors.BOLD}Score:{Colors.ENDC} You: {Colors.OKGREEN}{user_score}{Colors.ENDC} | Computer: {Colors.FAIL}{computer_score}{Colors.ENDC}")
+button_frame = tk.Frame(root, bg="#f5f6fa")
+button_frame.pack(pady=10)
 
-        if not play_again():
-            print(f"\n{Colors.HEADER}{Colors.BOLD}Thanks for playing! Final Score - You: {user_score}, Computer: {computer_score}{Colors.ENDC}")
-            break
-        round_num += 1
-        clear_screen()
-        print_title()
+button_styles = {
+    "rock": {"bg": "#a5a5a5", "fg": "white"},  # grey
+    "paper": {"bg": "#f5f5dc", "fg": "black"},   # beige
+    "scissors": {"bg": "#2d3436", "fg": "white"}   # dark grey
+}
 
-if __name__ == "__main__":
-    main()
+for choice in choices:
+    tk.Button(
+        button_frame,
+        text=choice.capitalize(),
+        font=("Arial", 13, "bold"),
+        width=12,
+        bg=button_styles[choice]["bg"],
+        fg=button_styles[choice]["fg"],
+        activebackground="#dff9fb",
+        command=lambda c=choice: play(c)
+    ).pack(side=tk.LEFT, padx=10)
+
+user_label = tk.Label(root, text="Your choice: ", font=("Arial", 12), bg="#f5f6fa")
+user_label.pack(pady=5)
+
+computer_label = tk.Label(root, text="Computer's choice: ", font=("Arial", 12), bg="#f5f6fa")
+computer_label.pack(pady=5)
+
+result_label = tk.Label(root, text="", font=("Arial", 14, "bold"), bg="#f5f6fa")
+result_label.pack(pady=10)
+
+score_label = tk.Label(root, text="Score - You: 0 | Computer: 0", font=("Arial", 12), bg="#f5f6fa")
+score_label.pack(pady=5)
+
+play_again_btn = tk.Button(root, text="Play Again", font=("Arial", 12), bg="#20bf6b", fg="white", width=10, command=play_again, state=tk.DISABLED)
+play_again_btn.pack(pady=5)
+
+quit_btn = tk.Button(root, text="Quit", font=("Arial", 12), bg="#636e72", fg="white", width=10, command=root.destroy)
+quit_btn.pack(pady=5)
+
+root.mainloop()
